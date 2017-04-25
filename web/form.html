@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+</head>
+
+<body>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <h2>单图上传</h2>
+        <input type="text" name="productname">
+        <input type="file" name="logo">
+        <input type="submit" value="提交">
+    </form>
+    <textarea name="content" id="post" cols="50" rows="10"></textarea>
+      <button id="btn">提交</button>
+      <br>
+   <div id="area" ></div>
+    <script src="js/jquery-2.1.4.min.js"></script>
+    <script src="js/kindEditor/kindeditor-min.js"></script>
+    <script src="js/kindEditor/lang/zh_CN.js"></script>
+    <script>
+    // var options = {
+    //     uploadJson: '/uploadImg'
+    // };
+    KindEditor.ready(function(k) {
+        editor = k.create('#post', {
+            uploadJson: '/uploadImg', //指定上传图片的服务器端程序
+            allowUpload: true,
+            urlType: 'absolute',
+            resizeType: 0, //文本框不可拖动
+            items: [ //配置工具栏
+                'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+                'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+                'insertunorderedlist', '|', 'emoticons', 'image', 'link'
+            ],
+
+            afterCreate: function() { //kindeditor创建后，将编辑器的内容设置到原来的textarea控件里
+                this.sync();
+            },
+            afterChange: function() { //编辑器内容发生变化后，将编辑器的内容设置到原来的textarea控件里
+                this.sync();
+            },
+            afterBlur: function() { //编辑器聚焦后，将编辑器的内容设置到原来的textarea控件里
+                this.sync();
+            }
+        });
+
+        $("#btn").click(function() {
+        var post = $("#post").val();
+        var Data = {
+                "title": "DD",
+                "post": post,
+                "tableName":"posts"
+            }
+        var postData= JSON.stringify(Data)
+        $.ajax({
+            type: 'POST',
+            url: '/post',
+            data:postData,
+            contentType: 'application/json',
+            dataType: 'json',
+            success: function(data) {
+                console.log(data);
+                $('#post').html()
+            },
+            error:function(){
+                alert("error!!!")
+            }
+        })
+    })
+
+        $.ajax({
+                type:'GET',
+                url:'/post',
+                contentType:'application/json',
+                dataType:'json',
+                success:function(data){
+                    console.log(data);
+                    $("#area").html(data.posts[0].post)
+                }
+            })
+
+
+    });
+
+        </script>
+</body>
+
+</html>
